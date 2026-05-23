@@ -8,9 +8,48 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Select and implement the next feature spec unit after `21-canvas-autosave.md` and latest `current-issuse.md` adjustments.
+- Select and implement the next available feature spec unit after `22-design-agent-api.md`.
 
 ## Completed
+
+- Feature spec `22-design-agent-api.md` completed:
+    - Added `TaskRun` Prisma model in `prisma/models/task-run.prisma` with:
+      - `runId` unique
+      - `projectId`
+      - `userId`
+      - `createdAt`
+      - index on `runId`
+      - compound index on `userId` + `projectId`
+    - Added migration and applied it:
+      - `prisma/migrations/20260523085718_add_task_run_model/migration.sql`
+    - Added Trigger design task in `src/trigger/design-agent.ts`:
+      - Task ID `design-agent`
+      - Accepts `{ prompt, roomId }`
+      - Logs and echoes payload (no AI/canvas logic)
+    - Added `POST /api/ai/design` in `app/api/ai/design/route.ts`:
+      - Validates `prompt`, `roomId`, `projectId`
+      - Enforces Clerk authentication
+      - Verifies project access
+      - Enforces `roomId === projectId`
+      - Triggers Trigger.dev run and persists `TaskRun`
+      - Returns `202` with `{ runId }`
+    - Added `POST /api/ai/design/token` in `app/api/ai/design/token/route.ts`:
+      - Validates `runId`
+      - Enforces Clerk authentication
+      - Verifies run ownership via `TaskRun` (`runId` + `userId`)
+      - Mints run-scoped Trigger.dev public token and returns `{ token }`
+    - Regenerated Prisma client in `app/generated/prisma`.
+    - Validation checks:
+      - `pnpm build` passed
+
+- Trigger.dev setup baseline completed (2026-05-23):
+    - Confirmed Trigger.dev v4 dependencies, config (`trigger.config.ts`), and task directory (`src/trigger`) are present.
+    - Added typed sample payload contract in `src/trigger/example.ts` (removed `any`).
+    - Added authenticated route `POST /api/trigger/hello` in `app/api/trigger/hello/route.ts` to enqueue Trigger tasks without long-running API work.
+    - Added Trigger CLI scripts in `package.json`:
+      - `pnpm trigger:dev`
+      - `pnpm trigger:deploy`
+    - Added Trigger.dev usage notes and local test command to `README.md`.
 
 - Feature spec `01-design-system.md` completed:
     - shadcn/ui installed and configured
@@ -323,7 +362,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Select and implement the next available feature spec unit after `21-canvas-autosave.md` and current UI/UX issue fixes.
+- Select and implement the next available feature spec unit after `22-design-agent-api.md`.
 
 ## Open Questions
 

@@ -1,5 +1,26 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Trigger.dev Setup
+
+This project is configured for Trigger.dev v4 (`@trigger.dev/sdk/v3` package API).
+
+1. Set `TRIGGER_SECRET_KEY` in `.env.local`.
+2. Start Trigger.dev dev worker:
+
+```bash
+pnpm trigger:dev
+```
+
+3. Trigger the sample task from app code or HTTP:
+
+```bash
+curl -X POST http://localhost:3000/api/trigger/hello \
+  -H "Content-Type: application/json" \
+  -d "{\"message\":\"from local test\"}"
+```
+
+Task source files live in `src/trigger/` and Trigger.dev config is in `trigger.config.ts`.
+
 ## Getting Started
 
 First, run the development server:
